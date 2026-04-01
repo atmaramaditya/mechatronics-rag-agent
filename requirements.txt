@@ -6,3 +6,6 @@ sentence-transformers
 duckduckgo-search
 langchain-community
 pymupdf
+torch
+torchvision
+pillow
