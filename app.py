@@ -17,24 +17,49 @@ st.set_page_config(
     layout="wide"
 )
 
-# Custom CSS for a polished look
+# Professional Gradient Background & Glassmorphism UI
 st.markdown("""
     <style>
-    .main { background-color: #f5f7f9; }
-    .stChatMessage { border-radius: 15px; margin-bottom: 10px; }
-    .sidebar-text { font-size: 14px; color: #555; }
+    /* Main Background */
+    .stApp {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+        color: #f8fafc;
+    }
+
+    /* Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background-color: rgba(15, 23, 42, 0.8) !important;
+        backdrop-filter: blur(10px);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Chat Input Styling */
+    .stChatInput {
+        background-color: rgba(30, 41, 59, 0.7) !important;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    /* Message Bubbles */
+    .stChatMessage {
+        background-color: rgba(51, 65, 85, 0.4) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    /* Headings */
+    h1, h2, h3, p {
+        color: #f8fafc !important;
+    }
+
+    .stStatus {
+        background-color: rgba(15, 23, 42, 0.9) !important;
+        border: 1px solid #38bdf8 !important;
+    }
     </style>
     """, unsafe_allow_html=True)
-
-# Initialize Tools
-@st.cache_resource
-def load_resources():
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-    search_tool = DuckDuckGoSearchRun()
-    return model, search_tool
-
-model_embed, search = load_resources()
-client_groq = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 # 2. Sidebar - Personal Branding
 with st.sidebar:
