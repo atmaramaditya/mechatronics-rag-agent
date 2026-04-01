@@ -5,15 +5,62 @@ from groq import Groq
 from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 from langchain_community.tools import DuckDuckGoSearchRun
+
+# 0. Global Fixes
 os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
-# 1. Setup
+
+# 1. Setup & Branding
 load_dotenv()
-st.set_page_config(page_title="Mechatronics AI Agent", page_icon="🤖")
-search = DuckDuckGoSearchRun()
-model_embed = SentenceTransformer('all-MiniLM-L6-v2')
+st.set_page_config(
+    page_title="Aditya's Mechatronics AI", 
+    page_icon="⚙️", 
+    layout="wide"
+)
+
+# Custom CSS for a polished look
+st.markdown("""
+    <style>
+    .main { background-color: #f5f7f9; }
+    .stChatMessage { border-radius: 15px; margin-bottom: 10px; }
+    .sidebar-text { font-size: 14px; color: #555; }
+    </style>
+    """, unsafe_allow_html=True)
+
+# Initialize Tools
+@st.cache_resource
+def load_resources():
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    search_tool = DuckDuckGoSearchRun()
+    return model, search_tool
+
+model_embed, search = load_resources()
 client_groq = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# 2. Helper Functions
+# 2. Sidebar - Personal Branding
+with st.sidebar:
+    st.image("https://cdn-icons-png.flaticon.com/512/1998/1998614.png", width=80) # Replace with your photo URL
+    st.title("Aditya Atmaram")
+    st.markdown("""
+    **Mechatronics Engineer & Data Scientist**
+    *B.Tech @ Mukesh Patel (MPSTME)*
+    *Diploma in AI @ BIA*
+    
+    ---
+    ### 🛠️ Agent Capabilities
+    - **PDF RAG:** Accesses internal engineering docs.
+    - **Live Web:** Browses for 2026 tech trends.
+    - **Logic:** Powered by Llama 3.1 & Groq.
+    
+    ---
+    ### 🔗 Quick Links
+    [GitHub](https://github.com/atmaramaditya) | [LinkedIn](#)
+    """)
+    
+    if st.button("Clear Conversation"):
+        st.session_state.messages = []
+        st.rerun()
+
+# 3. Helper Functions
 def get_local_context(query):
     try:
         client_db = chromadb.PersistentClient(path="./vector_db")
@@ -21,12 +68,12 @@ def get_local_context(query):
         query_vector = model_embed.encode(query).tolist()
         results = collection.query(query_embeddings=[query_vector], n_results=3)
         return "\n".join(results['documents'][0])
-    except:
+    except Exception as e:
         return ""
 
-# 3. Streamlit UI
-st.title("🤖 Mechatronics Engineering Agent")
-st.markdown("Querying your **PDFs** + **Live Web Search**")
+# 4. Main UI Logic
+st.title("🤖 Aditya's Mechatronics Agent")
+st.caption("Fusing Mechanical Precision with AI Intelligence")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -43,21 +90,33 @@ if prompt := st.chat_input("Ask about Arduino, Sensors, or Latest Tech..."):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        with st.status("🔍 Searching Internal PDFs & Web...") as status:
-            # A. Get Local Data
+        # Step A & B: Gathering Intelligence
+        with st.status("🚀 Engineering Intelligence Hub Active...", expanded=False) as status:
+            st.write("Reading internal PDF vectors...")
             local_info = get_local_context(prompt)
-            # B. Get Web Data
-            web_info = search.run(prompt)
-            status.update(label="✅ Information Found! Generating Answer...", state="complete")
+            
+            st.write("Querying DuckDuckGo for live updates...")
+            try:
+                web_info = search.run(prompt)
+            except:
+                web_info = "Search temporarily unavailable."
+                
+            status.update(label="✅ Context Synthesized!", state="complete")
 
         # C. Generate Final Answer
+        # Note: We include your identity in the system prompt so the AI knows its creator
         sys_prompt = f"""
-        You are an expert Mechatronics Engineer. 
-        INTERNAL PDF INFO: {local_info}
-        WEB INFO: {web_info}
+        You are the Personal AI Assistant of Aditya Atmaram, a Mechatronics Engineer and Data Scientist.
+        Your goal is to provide expert technical advice.
         
-        Combine both sources to answer the user. If the PDF has the answer, prioritize it. 
-        If it's a new tech question, use the Web Info.
+        ADITYA'S KNOWLEDGE BASE (PDF): {local_info}
+        LIVE WEB UPDATES: {web_info}
+        
+        RULES:
+        1. If the PDF has the answer, prioritize it as "Aditya's Verified Data."
+        2. Use Web Info for current events or missing specs.
+        3. Use LaTeX for math/formulas (e.g., $V = IR$).
+        4. Be concise but highly technical.
         """
         
         response = client_groq.chat.completions.create(
