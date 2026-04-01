@@ -5,7 +5,7 @@ from groq import Groq
 from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 from langchain_community.tools import DuckDuckGoSearchRun
-
+os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
 # 1. Setup
 load_dotenv()
 st.set_page_config(page_title="Mechatronics AI Agent", page_icon="🤖")
