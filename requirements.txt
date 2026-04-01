@@ -4,7 +4,8 @@ groq
 python-dotenv
 sentence-transformers
 duckduckgo-search
-langchain-community
+ddgs
+langchain-community>=0.3.0
 pymupdf
 torch
 torchvision
